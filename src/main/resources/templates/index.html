@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Kezdőlap')">
+    <title>Autókölcsönző</title>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header"></header>
+
+<main class="container">
+    <div class="card">
+        <h2>Üdvözöljük az Autókölcsönző Rendszerben!</h2>
+        <p>Ezen a felületen autókat kezelhet és bérléseket rögzíthet. Válasszon az alábbi lehetőségek közül:</p>
+        
+        <div style="display: flex; gap: 20px; margin-top: 30px;">
+            <div style="flex: 1; text-align: center; padding: 20px; background-color: #e8f4fc; border-radius: 5px;">
+                <h3>Autók kezelése</h3>
+                <p>Új autók hozzáadása, meglévők módosítása vagy törlése.</p>
+                <a th:href="@{/autok}" class="btn">Autók kezelése</a>
+            </div>
+            
+            <div style="flex: 1; text-align: center; padding: 20px; background-color: #e8f4fc; border-radius: 5px;">
+                <h3>Bérlések kezelése</h3>
+                <p>Új bérlések rögzítése, meglévők kezelése.</p>
+                <a th:href="@{/berlesek}" class="btn">Bérlések kezelése</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>

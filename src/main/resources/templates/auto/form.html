@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head(${auto.id != null ? 'Autó szerkesztése' : 'Új autó'})">
+    <title>Autó űrlap</title>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header"></header>
+
+<main class="container">
+    <div class="card">
+        <h2 th:text="${auto.id != null ? 'Autó szerkesztése' : 'Új autó hozzáadása'}">Autó űrlap</h2>
+        
+        <form th:action="${auto.id != null ? '/autok/' + auto.id + '/szerkesztes' : '/autok/uj'}" 
+              th:object="${auto}" method="post">
+            
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="form-group">
+                <label for="marka">Márka:</label>
+                <input type="text" id="marka" th:field="*{marka}" required />
+                <span th:if="${#fields.hasErrors('marka')}" th:errors="*{marka}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="tipus">Típus:</label>
+                <input type="text" id="tipus" th:field="*{tipus}" required />
+                <span th:if="${#fields.hasErrors('tipus')}" th:errors="*{tipus}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="evjarat">Évjárat:</label>
+                <input type="number" id="evjarat" th:field="*{evjarat}" min="1900" th:max="${#calendars.format(#calendars.createNow(), 'yyyy')}" required />
+                <span th:if="${#fields.hasErrors('evjarat')}" th:errors="*{evjarat}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="rendszam">Rendszám:</label>
+                <input type="text" id="rendszam" th:field="*{rendszam}" required />
+                <span th:if="${#fields.hasErrors('rendszam')}" th:errors="*{rendszam}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Mentés</button>
+                <a th:href="@{/autok}" class="btn">Vissza</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>

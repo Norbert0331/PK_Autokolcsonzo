@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head(${berles.id != null ? 'Bérlés szerkesztése' : 'Új bérlés'})">
+    <title>Bérlés űrlap</title>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header"></header>
+
+<main class="container">
+    <div class="card">
+        <h2 th:text="${berles.id != null ? 'Bérlés szerkesztése' : 'Új bérlés rögzítése'}">Bérlés űrlap</h2>
+        
+        <form th:action="${berles.id != null ? '/berlesek/' + berles.id + '/szerkesztes' : '/berlesek/uj'}" 
+              th:object="${berles}" method="post">
+            
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="form-group">
+                <label for="berloNev">Bérlő neve:</label>
+                <input type="text" id="berloNev" th:field="*{berloNev}" required />
+                <span th:if="${#fields.hasErrors('berloNev')}" th:errors="*{berloNev}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="autoId">Autó:</label>
+                <select id="autoId" th:field="*{auto.id}" required>
+                    <option value="">-- Válasszon autót --</option>
+                    <option th:each="auto : ${autok}" 
+                            th:value="${auto.id}" 
+                            th:text="${auto.marka + ' ' + auto.tipus + ' (' + auto.rendszam + ')'}"
+                            th:selected="${autoId != null && autoId == auto.id}">
+                        Toyota Corolla (ABC-123)
+                    </option>
+                </select>
+                <span th:if="${#fields.hasErrors('auto')}" th:errors="*{auto}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="kezdoDatum">Kezdő dátum:</label>
+                <input type="date" id="kezdoDatum" th:field="*{kezdoDatum}" required />
+                <span th:if="${#fields.hasErrors('kezdoDatum')}" th:errors="*{kezdoDatum}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="vegDatum">Vég dátum:</label>
+                <input type="date" id="vegDatum" th:field="*{vegDatum}" required />
+                <span th:if="${#fields.hasErrors('vegDatum')}" th:errors="*{vegDatum}" class="error"></span>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Mentés</button>
+                <a th:href="@{/berlesek}" class="btn">Vissza</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>

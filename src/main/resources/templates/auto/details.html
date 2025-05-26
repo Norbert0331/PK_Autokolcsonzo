@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Autó részletei')">
+    <title>Autó részletei</title>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header"></header>
+
+<main class="container">
+    <div class="card">
+        <h2>Autó részletei</h2>
+        
+        <div th:if="${auto != null}">
+            <table>
+                <tr>
+                    <th style="width: 150px">ID:</th>
+                    <td th:text="${auto.id}">1</td>
+                </tr>
+                <tr>
+                    <th>Márka:</th>
+                    <td th:text="${auto.marka}">Toyota</td>
+                </tr>
+                <tr>
+                    <th>Típus:</th>
+                    <td th:text="${auto.tipus}">Corolla</td>
+                </tr>
+                <tr>
+                    <th>Évjárat:</th>
+                    <td th:text="${auto.evjarat}">2020</td>
+                </tr>
+                <tr>
+                    <th>Rendszám:</th>
+                    <td th:text="${auto.rendszam}">ABC-123</td>
+                </tr>
+            </table>
+            
+            <h3 style="margin-top: 30px">Az autóhoz tartozó bérlések</h3>
+            
+            <div th:if="${#lists.isEmpty(auto.berlesek)}" style="margin-top: 20px;">
+                <p>Ehhez az autóhoz még nem tartoznak bérlések.</p>
+            </div>
+            
+            <table th:if="${not #lists.isEmpty(auto.berlesek)}">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bérlő neve</th>
+                        <th>Kezdő dátum</th>
+                        <th>Vég dátum</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="berles : ${auto.berlesek}">
+                        <td th:text="${berles.id}">1</td>
+                        <td th:text="${berles.berloNev}">Teszt Elek</td>
+                        <td th:text="${#temporals.format(berles.kezdoDatum, 'yyyy.MM.dd')}">2025.05.01</td>
+                        <td th:text="${#temporals.format(berles.vegDatum, 'yyyy.MM.dd')}">2025.05.10</td>
+                        <td>
+                            <a th:href="@{/berlesek/{id}/reszletek(id=${berles.id})}" class="btn">Részletek</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 30px">
+                <a th:href="@{/berlesek/uj(autoId=${auto.id})}" class="btn btn-success">Új bérlés ehhez az autóhoz</a>
+                <a th:href="@{/autok/{id}/szerkesztes(id=${auto.id})}" class="btn">Szerkesztés</a>
+                <a th:href="@{/autok}" class="btn">Vissza a listához</a>
+            </div>
+        </div>
+        
+        <div th:unless="${auto != null}">
+            <p>Az autó nem található.</p>
+            <a th:href="@{/autok}" class="btn">Vissza a listához</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>

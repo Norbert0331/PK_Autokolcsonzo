@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Autókölcsönző'">Autókölcsönző</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<header th:fragment="header">
+    <div class="container">
+        <h1>Autókölcsönző Rendszer</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Kezdőlap</a></li>
+                <li><a th:href="@{/autok}">Autók</a></li>
+                <li><a th:href="@{/berlesek}">Bérlések</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<footer th:fragment="footer">
+    <div class="container">
+        <p>&copy; 2025 Autókölcsönző Rendszer </p>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Autók listája')">
+    <title>Autók listája</title>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header"></header>
+
+<main class="container">
+    <div class="card">
+        <h2>Autók listája</h2>
+        
+        <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : 'alert-danger'">
+            <p th:text="${message}">Üzenet</p>
+        </div>
+        
+        <a th:href="@{/autok/uj}" class="btn btn-success">Új autó hozzáadása</a>
+        
+        <div th:if="${#lists.isEmpty(autok)}" style="margin-top: 20px;">
+            <p>Jelenleg nincsenek autók az adatbázisban.</p>
+        </div>
+        
+        <table th:if="${not #lists.isEmpty(autok)}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Márka</th>
+                    <th>Típus</th>
+                    <th>Évjárat</th>
+                    <th>Rendszám</th>
+                    <th>Műveletek</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="auto : ${autok}">
+                    <td th:text="${auto.id}">1</td>
+                    <td th:text="${auto.marka}">Toyota</td>
+                    <td th:text="${auto.tipus}">Corolla</td>
+                    <td th:text="${auto.evjarat}">2020</td>
+                    <td th:text="${auto.rendszam}">ABC-123</td>
+                    <td>
+                        <a th:href="@{/autok/{id}/reszletek(id=${auto.id})}" class="btn">Részletek</a>
+                        <a th:href="@{/autok/{id}/szerkesztes(id=${auto.id})}" class="btn">Szerkesztés</a>
+                        <a th:href="@{/autok/{id}/torles(id=${auto.id})}" class="btn btn-danger" 
+                           onclick="return confirm('Biztosan törli ezt az autót?');">Törlés</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>

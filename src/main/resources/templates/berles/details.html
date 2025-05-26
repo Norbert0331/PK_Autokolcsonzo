@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/layout :: head('Bérlés részletei')">
+    <title>Bérlés részletei</title>
+</head>
+<body>
+
+<header th:replace="fragments/layout :: header"></header>
+
+<main class="container">
+    <div class="card">
+        <h2>Bérlés részletei</h2>
+        
+        <div th:if="${berles != null}">
+            <table>
+                <tr>
+                    <th style="width: 150px">ID:</th>
+                    <td th:text="${berles.id}">1</td>
+                </tr>
+                <tr>
+                    <th>Bérlő neve:</th>
+                    <td th:text="${berles.berloNev}">Teszt Elek</td>
+                </tr>
+                <tr>
+                    <th>Kezdő dátum:</th>
+                    <td th:text="${#temporals.format(berles.kezdoDatum, 'yyyy.MM.dd')}">2025.05.01</td>
+                </tr>
+                <tr>
+                    <th>Vég dátum:</th>
+                    <td th:text="${#temporals.format(berles.vegDatum, 'yyyy.MM.dd')}">2025.05.10</td>
+                </tr>
+                <tr>
+                    <th>Időtartam:</th>
+                    <td th:text="${berles.vegDatum.toEpochDay() - berles.kezdoDatum.toEpochDay() + ' nap'}">10 nap</td>
+                </tr>
+            </table>
+            
+            <h3 style="margin-top: 30px">Bérelt autó adatai</h3>
+            
+            <table>
+                <tr>
+                    <th style="width: 150px">Márka:</th>
+                    <td th:text="${berles.auto.marka}">Toyota</td>
+                </tr>
+                <tr>
+                    <th>Típus:</th>
+                    <td th:text="${berles.auto.tipus}">Corolla</td>
+                </tr>
+                <tr>
+                    <th>Évjárat:</th>
+                    <td th:text="${berles.auto.evjarat}">2020</td>
+                </tr>
+                <tr>
+                    <th>Rendszám:</th>
+                    <td th:text="${berles.auto.rendszam}">ABC-123</td>
+                </tr>
+            </table>
+            
+            <div style="margin-top: 30px">
+                <a th:href="@{/berlesek/{id}/szerkesztes(id=${berles.id})}" class="btn">Szerkesztés</a>
+                <a th:href="@{/autok/{id}/reszletek(id=${berles.auto.id})}" class="btn">Autó részletei</a>
+                <a th:href="@{/berlesek}" class="btn">Vissza a listához</a>
+            </div>
+        </div>
+        
+        <div th:unless="${berles != null}">
+            <p>A bérlés nem található.</p>
+            <a th:href="@{/berlesek}" class="btn">Vissza a listához</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+
+</body>
+</html>
