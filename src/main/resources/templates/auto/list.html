@@ -14,8 +14,26 @@
         <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : 'alert-danger'">
             <p th:text="${message}">Üzenet</p>
         </div>
+
+        <div class="filter-section">
+            <h3>Szűrés</h3>
+            <form th:action="@{/autok}" method="get">
+                <div class="form-group">
+                    <label for="marka">Márka:</label>
+                    <input type="text" id="marka" name="marka" th:value="${marka}" placeholder="Márka keresése..." class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="minEvjarat">Minimum évjárat:</label>
+                    <input type="number" id="minEvjarat" name="minEvjarat" th:value="${minEvjarat}" placeholder="pl. 2020" class="form-control">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Szűrés</button>
+                    <a th:href="@{/autok}" class="btn btn-secondary">Szűrés törlése</a>
+                </div>
+            </form>
+        </div>
         
-        <a th:href="@{/autok/uj}" class="btn btn-success">Új autó hozzáadása</a>
+        <a th:href="@{/autok/uj}" class="btn btn-success" style="margin-top: 20px;">Új autó hozzáadása</a>
         
         <div th:if="${#lists.isEmpty(autok)}" style="margin-top: 20px;">
             <p>Jelenleg nincsenek autók az adatbázisban.</p>

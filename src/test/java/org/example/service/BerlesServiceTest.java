@@ -167,4 +167,134 @@ public class BerlesServiceTest {
         assertThat(foundBerlesek.get(0).getKezdoDatum()).isEqualTo(LocalDate.of(2025, 5, 1));
         verify(berlesRepository, times(1)).findByKezdoDatumBetween(kezdo, vege);
     }
+
+    @Test
+    void isAutoAvailable_WhenNoOverlappingBookings_ShouldReturnTrue() {
+        // Arrange
+        Auto auto = new Auto();
+        auto.setId(2L);
+        auto.setMarka("Honda");
+        auto.setTipus("Civic");
+        auto.setRendszam("XYZ-789");
+
+        LocalDate kezdoDatum = LocalDate.of(2025, 7, 1);
+        LocalDate vegDatum = LocalDate.of(2025, 7, 10);
+
+        // Meglévő bérlések az autóhoz (nincs átfedés)
+        Berles existingBerles = new Berles();
+        existingBerles.setId(3L);
+        existingBerles.setAuto(auto);
+        existingBerles.setBerloNev("Kovács János");
+        existingBerles.setKezdoDatum(LocalDate.of(2025, 8, 1));
+        existingBerles.setVegDatum(LocalDate.of(2025, 8, 10));
+
+        when(berlesRepository.findByAuto(auto)).thenReturn(List.of(existingBerles));
+
+        // Act
+        boolean isAvailable = berlesService.isAutoAvailable(auto, kezdoDatum, vegDatum);
+
+        // Assert
+        assertThat(isAvailable).isTrue();
+        verify(berlesRepository, times(1)).findByAuto(auto);
+    }
+
+    @Test
+    void isAutoAvailable_WhenOverlappingBookingExists_ShouldReturnFalse() {
+        // Arrange
+        Auto auto = new Auto();
+        auto.setId(2L);
+        auto.setMarka("Honda");
+        auto.setTipus("Civic");
+        auto.setRendszam("XYZ-789");
+
+        LocalDate kezdoDatum = LocalDate.of(2025, 7, 5);
+        LocalDate vegDatum = LocalDate.of(2025, 7, 15);
+
+        // Meglévő bérlés átfedéssel
+        Berles existingBerles = new Berles();
+        existingBerles.setId(3L);
+        existingBerles.setAuto(auto);
+        existingBerles.setBerloNev("Kovács János");
+        existingBerles.setKezdoDatum(LocalDate.of(2025, 7, 1));
+        existingBerles.setVegDatum(LocalDate.of(2025, 7, 10));
+
+        when(berlesRepository.findByAuto(auto)).thenReturn(List.of(existingBerles));
+
+        // Act
+        boolean isAvailable = berlesService.isAutoAvailable(auto, kezdoDatum, vegDatum);
+
+        // Assert
+        assertThat(isAvailable).isFalse();
+        verify(berlesRepository, times(1)).findByAuto(auto);
+    }
+
+    @Test
+    void isAutoAvailable_WithExcludedId_WhenNoOtherOverlappingBookings_ShouldReturnTrue() {
+        // Arrange
+        Auto auto = new Auto();
+        auto.setId(2L);
+        auto.setMarka("Honda");
+        auto.setTipus("Civic");
+        auto.setRendszam("XYZ-789");
+
+        Long excludedBerlesId = 3L;
+        LocalDate kezdoDatum = LocalDate.of(2025, 7, 5);
+        LocalDate vegDatum = LocalDate.of(2025, 7, 15);
+
+        // Ez a bérlés átfedésben lenne, de ezt kizárjuk az ellenőrzésből
+        Berles existingBerles = new Berles();
+        existingBerles.setId(excludedBerlesId);
+        existingBerles.setAuto(auto);
+        existingBerles.setBerloNev("Kovács János");
+        existingBerles.setKezdoDatum(LocalDate.of(2025, 7, 1));
+        existingBerles.setVegDatum(LocalDate.of(2025, 7, 10));
+
+        when(berlesRepository.findByAuto(auto)).thenReturn(List.of(existingBerles));
+
+        // Act
+        boolean isAvailable = berlesService.isAutoAvailable(auto, kezdoDatum, vegDatum, excludedBerlesId);
+
+        // Assert
+        assertThat(isAvailable).isTrue();
+        verify(berlesRepository, times(1)).findByAuto(auto);
+    }
+
+    @Test
+    void isAutoAvailable_WithExcludedId_WhenOtherOverlappingBookingExists_ShouldReturnFalse() {
+        // Arrange
+        Auto auto = new Auto();
+        auto.setId(2L);
+        auto.setMarka("Honda");
+        auto.setTipus("Civic");
+        auto.setRendszam("XYZ-789");
+
+        Long excludedBerlesId = 3L;
+        LocalDate kezdoDatum = LocalDate.of(2025, 7, 5);
+        LocalDate vegDatum = LocalDate.of(2025, 7, 15);
+
+        // Ez a bérlés átfedésben lenne, de ezt kizárjuk az ellenőrzésből
+        Berles excludedBerles = new Berles();
+        excludedBerles.setId(excludedBerlesId);
+        excludedBerles.setAuto(auto);
+        excludedBerles.setBerloNev("Kovács János");
+        excludedBerles.setKezdoDatum(LocalDate.of(2025, 7, 1));
+        excludedBerles.setVegDatum(LocalDate.of(2025, 7, 10));
+
+        // Ez a bérlés is átfedésben van, és nincs kizárva
+        Berles otherOverlappingBerles = new Berles();
+        otherOverlappingBerles.setId(4L);
+        otherOverlappingBerles.setAuto(auto);
+        otherOverlappingBerles.setBerloNev("Nagy Péter");
+        otherOverlappingBerles.setKezdoDatum(LocalDate.of(2025, 7, 12));
+        otherOverlappingBerles.setVegDatum(LocalDate.of(2025, 7, 20));
+
+        when(berlesRepository.findByAuto(auto)).thenReturn(List.of(excludedBerles, otherOverlappingBerles));
+
+        // Act
+        boolean isAvailable = berlesService.isAutoAvailable(auto, kezdoDatum, vegDatum, excludedBerlesId);
+
+        // Assert
+        assertThat(isAvailable).isFalse();
+        verify(berlesRepository, times(1)).findByAuto(auto);
+    }
 }

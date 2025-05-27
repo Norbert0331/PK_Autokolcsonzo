@@ -14,8 +14,32 @@
         <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : 'alert-danger'">
             <p th:text="${message}">Üzenet</p>
         </div>
+
+        <div class="filter-section">
+            <h3>Szűrés</h3>
+            <form th:action="@{/berlesek}" method="get">
+                <div class="form-group">
+                    <label for="berloNev">Bérlő neve:</label>
+                    <input type="text" id="berloNev" name="berloNev" th:value="${berloNev}" placeholder="Bérlő nevének részlete..." class="form-control">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="kezdoDatum">Kezdő dátum (tól):</label>
+                        <input type="date" id="kezdoDatum" name="kezdoDatum" th:value="${kezdoDatum}" class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="vegDatum">Kezdő dátum (ig):</label>
+                        <input type="date" id="vegDatum" name="vegDatum" th:value="${vegDatum}" class="form-control">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Szűrés</button>
+                    <a th:href="@{/berlesek}" class="btn btn-secondary">Szűrés törlése</a>
+                </div>
+            </form>
+        </div>
         
-        <a th:href="@{/berlesek/uj}" class="btn btn-success">Új bérlés rögzítése</a>
+        <a th:href="@{/berlesek/uj}" class="btn btn-success" style="margin-top: 20px;">Új bérlés rögzítése</a>
         
         <div th:if="${#lists.isEmpty(berlesek)}" style="margin-top: 20px;">
             <p>Jelenleg nincsenek bérlések az adatbázisban.</p>

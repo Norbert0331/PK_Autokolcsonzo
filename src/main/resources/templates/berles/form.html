@@ -10,6 +10,10 @@
 <main class="container">
     <div class="card">
         <h2 th:text="${berles.id != null ? 'Bérlés szerkesztése' : 'Új bérlés rögzítése'}">Bérlés űrlap</h2>
+
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <p th:text="${errorMessage}">Hibajelzés</p>
+        </div>
         
         <form th:action="${berles.id != null ? '/berlesek/' + berles.id + '/szerkesztes' : '/berlesek/uj'}" 
               th:object="${berles}" method="post">

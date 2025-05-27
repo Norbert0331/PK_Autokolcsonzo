@@ -6,8 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
 @Repository
 public interface AutoRepository extends JpaRepository<Auto, Long> {
+    
     List<Auto> findByMarka(String marka);
     List<Auto> findByEvjaratGreaterThanEqual(int evjarat);
 }

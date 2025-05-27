@@ -8,8 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @Repository
 public interface BerlesRepository extends JpaRepository<Berles, Long> {
+    
     List<Berles> findByAuto(Auto auto);
     List<Berles> findByBerloNevContaining(String berloNev);
     List<Berles> findByKezdoDatumBetween(LocalDate kezdo, LocalDate vege);

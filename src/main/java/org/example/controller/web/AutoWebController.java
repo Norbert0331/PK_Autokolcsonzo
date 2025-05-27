@@ -9,19 +9,44 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
+
 @Controller
 @RequestMapping("/autok")
 public class AutoWebController {
 
     private final AutoService autoService;
 
+
     public AutoWebController(AutoService autoService) {
         this.autoService = autoService;
     }
 
+
     @GetMapping
-    public String getAllAutok(Model model) {
-        model.addAttribute("autok", autoService.getAllAutok());
+    public String getAllAutok(
+            @RequestParam(name = "marka", required = false) String marka,
+            @RequestParam(name = "minEvjarat", required = false) Integer minEvjarat,
+            Model model) {
+
+        var autok = autoService.getAllAutok();
+
+        if (marka != null && !marka.isEmpty()) {
+            autok = autoService.findByMarka(marka);
+        }
+
+        if (minEvjarat != null) {
+            if (marka != null && !marka.isEmpty()) {
+                autok = autok.stream()
+                        .filter(auto -> auto.getEvjarat() >= minEvjarat)
+                        .toList();
+            } else {
+                autok = autoService.findByEvjaratGreaterThanEqual(minEvjarat);
+            }
+        }
+        
+        model.addAttribute("autok", autok);
+        model.addAttribute("marka", marka);
+        model.addAttribute("minEvjarat", minEvjarat);
         return "auto/list";
     }
 

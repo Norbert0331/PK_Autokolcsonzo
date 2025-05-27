@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.Optional;
 
+
 @Controller
 @RequestMapping("/berlesek")
 public class BerlesWebController {
@@ -20,14 +21,39 @@ public class BerlesWebController {
     private final BerlesService berlesService;
     private final AutoService autoService;
 
+
     public BerlesWebController(BerlesService berlesService, AutoService autoService) {
         this.berlesService = berlesService;
         this.autoService = autoService;
     }
 
     @GetMapping
-    public String getAllBerlesek(Model model) {
-        model.addAttribute("berlesek", berlesService.getAllBerlesek());
+    public String getAllBerlesek(
+            @RequestParam(name = "berloNev", required = false) String berloNev,
+            @RequestParam(name = "kezdoDatum", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate kezdoDatum,
+            @RequestParam(name = "vegDatum", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vegDatum,
+            Model model) {
+
+        var berlesek = berlesService.getAllBerlesek();
+
+        if (berloNev != null && !berloNev.isEmpty()) {
+            berlesek = berlesService.findByBerloNevContaining(berloNev);
+        }
+
+        if (kezdoDatum != null && vegDatum != null) {
+            if (berloNev != null && !berloNev.isEmpty()) {
+                berlesek = berlesek.stream()
+                        .filter(berles -> !berles.getKezdoDatum().isBefore(kezdoDatum) && 
+                                          !berles.getKezdoDatum().isAfter(vegDatum)).toList();
+            } else {
+                berlesek = berlesService.findByKezdoDatumBetween(kezdoDatum, vegDatum);
+            }
+        }
+        
+        model.addAttribute("berlesek", berlesek);
+        model.addAttribute("berloNev", berloNev);
+        model.addAttribute("kezdoDatum", kezdoDatum);
+        model.addAttribute("vegDatum", vegDatum);
         return "berles/list";
     }
 
@@ -66,18 +92,26 @@ public class BerlesWebController {
     }
 
     @PostMapping("/uj")
-    public String createBerles(@ModelAttribute Berles berles, RedirectAttributes redirectAttributes) {
+    public String createBerles(@ModelAttribute Berles berles, Model model, RedirectAttributes redirectAttributes) {
         Optional<Auto> auto = autoService.getAutoById(berles.getAuto().getId());
         if (auto.isPresent()) {
-            berles.setAuto(auto.get());
-            berlesService.saveBerles(berles);
-            redirectAttributes.addFlashAttribute("message", "A bérlés sikeresen létrehozva!");
-            redirectAttributes.addFlashAttribute("messageType", "success");
+            if (berlesService.isAutoAvailable(auto.get(), berles.getKezdoDatum(), berles.getVegDatum())) {
+                berles.setAuto(auto.get());
+                berlesService.saveBerles(berles);
+                redirectAttributes.addFlashAttribute("message", "A bérlés sikeresen létrehozva!");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+                return "redirect:/berlesek";
+            } else {
+                model.addAttribute("errorMessage", "Az autó már foglalt a megadott időszakban!");
+                model.addAttribute("berles", berles);
+                model.addAttribute("autok", autoService.getAllAutok());
+                return "berles/form";
+            }
         } else {
             redirectAttributes.addFlashAttribute("message", "Az autó nem található!");
             redirectAttributes.addFlashAttribute("messageType", "danger");
+            return "redirect:/berlesek";
         }
-        return "redirect:/berlesek";
     }
 
     @GetMapping("/{id}/szerkesztes")
@@ -93,19 +127,27 @@ public class BerlesWebController {
     }
 
     @PostMapping("/{id}/szerkesztes")
-    public String updateBerles(@PathVariable Long id, @ModelAttribute Berles berles, RedirectAttributes redirectAttributes) {
+    public String updateBerles(@PathVariable Long id, @ModelAttribute Berles berles, Model model, RedirectAttributes redirectAttributes) {
         Optional<Auto> auto = autoService.getAutoById(berles.getAuto().getId());
         if (auto.isPresent()) {
-            berles.setId(id);
-            berles.setAuto(auto.get());
-            berlesService.saveBerles(berles);
-            redirectAttributes.addFlashAttribute("message", "A bérlés sikeresen frissítve!");
-            redirectAttributes.addFlashAttribute("messageType", "success");
+            if (berlesService.isAutoAvailable(auto.get(), berles.getKezdoDatum(), berles.getVegDatum(), id)) {
+                berles.setId(id);
+                berles.setAuto(auto.get());
+                berlesService.saveBerles(berles);
+                redirectAttributes.addFlashAttribute("message", "A bérlés sikeresen frissítve!");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+                return "redirect:/berlesek";
+            } else {
+                model.addAttribute("errorMessage", "Az autó már foglalt a megadott időszakban!");
+                model.addAttribute("berles", berles);
+                model.addAttribute("autok", autoService.getAllAutok());
+                return "berles/form";
+            }
         } else {
             redirectAttributes.addFlashAttribute("message", "Az autó nem található!");
             redirectAttributes.addFlashAttribute("messageType", "danger");
+            return "redirect:/berlesek";
         }
-        return "redirect:/berlesek";
     }
 
     @GetMapping("/{id}/torles")
